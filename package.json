@@ -1,0 +1,11 @@
+{
+  "name":"bangla-pdf-demo",
+  "version":"1.0.0",
+  "private":true,
+  "scripts":{"start":"node server.js"},
+  "dependencies":{
+    "express":"^4.21.2",
+    "qrcode":"^1.5.4",
+    "puppeteer":"^24.15.0"
+  }
+}

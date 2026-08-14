@@ -1,0 +1,1 @@
+এই version-এ আলাদা SolaimanLipi.ttf প্রয়োজন নেই। CSS-এ Noto Sans Bengali ব্যবহার করা হয়েছে।

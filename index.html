@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>বাংলা আবেদন ফর্ম</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:20px;
+  background:#f2f4f7;
+  font-family:"Noto Sans Bengali","Noto Sans",Arial,sans-serif;
+}
+.container{
+  max-width:650px;
+  margin:auto;
+  background:#fff;
+  padding:25px;
+  border-radius:14px;
+}
+h1{text-align:center}
+label{
+  display:block;
+  margin-top:15px;
+  font-weight:bold;
+}
+input,textarea{
+  width:100%;
+  padding:11px;
+  margin-top:5px;
+  border:1px solid #aaa;
+  border-radius:7px;
+  font-family:inherit;
+  font-size:16px;
+}
+textarea{min-height:100px}
+button{
+  width:100%;
+  padding:14px;
+  margin-top:20px;
+  border:0;
+  border-radius:8px;
+  background:#1769aa;
+  color:#fff;
+  font-size:17px;
+  font-family:inherit;
+}
+.preview{
+  text-align:center;
+  margin-top:15px;
+}
+.preview img{
+  width:140px;
+  height:180px;
+  object-fit:cover;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>আবেদন ফর্ম</h1>
+
+<label>আবেদনকারীর নাম</label>
+<input id="name" placeholder="নাম লিখুন">
+
+<label>পিতার নাম</label>
+<input id="father" placeholder="পিতার নাম">
+
+<label>মাতার নাম</label>
+<input id="mother" placeholder="মাতার নাম">
+
+<label>মোবাইল নম্বর</label>
+<input id="mobile" placeholder="মোবাইল নম্বর">
+
+<label>ঠিকানা</label>
+<textarea id="address" placeholder="ঠিকানা লিখুন"></textarea>
+
+<label>ছবি নির্বাচন করুন</label>
+<input id="photo" type="file" accept="image/*">
+
+<div class="preview">
+<img id="preview" style="display:none">
+</div>
+
+<button id="submit">
+আবেদন জমা দিয়ে PDF ডাউনলোড করুন
+</button>
+
+</div>
+
+<script>
+let photoData="";
+
+document.getElementById("photo").addEventListener(
+"change",
+function(){
+  const file=this.files[0];
+  if(!file)return;
+
+  const reader=new FileReader();
+
+  reader.onload=function(e){
+    photoData=e.target.result;
+
+    const preview=document.getElementById("preview");
+    preview.src=photoData;
+    preview.style.display="inline-block";
+  };
+
+  reader.readAsDataURL(file);
+});
+
+document.getElementById("submit").addEventListener(
+"click",
+async function(){
+
+  const data={
+    name:document.getElementById("name").value,
+    father:document.getElementById("father").value,
+    mother:document.getElementById("mother").value,
+    mobile:document.getElementById("mobile").value,
+    address:document.getElementById("address").value,
+    photo:photoData,
+    applicationId:"APP-"+Date.now()
+  };
+
+  if(!data.name.trim()){
+    alert("নাম লিখুন");
+    return;
+  }
+
+  try{
+    const response=await fetch("/generate-pdf",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(data)
+    });
+
+    if(!response.ok)throw new Error();
+
+    const blob=await response.blob();
+    const url=URL.createObjectURL(blob);
+
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=data.applicationId+".pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+  }catch(error){
+    alert("PDF তৈরি করতে সমস্যা হয়েছে।");
+    console.error(error);
+  }
+});
+</script>
+
+</body>
+</html>
